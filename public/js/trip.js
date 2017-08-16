@@ -86,6 +86,8 @@ var tripModule = (function () {
 
   var publicAPI = {
 
+    currentDay: currentDay,
+
     load: function () {
 
       // ~~~~~~~~~~~~~~~~~~~~~~~
