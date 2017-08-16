@@ -60,14 +60,19 @@ $(function () {
     var id = $select.find(':selected').val();
     // get associated attraction and add it to the current day in the trip
     var attraction = attractionsModule.getByTypeAndId(type, id);
-    tripModule.addToCurrent(attraction);
-
-    console.log(tripModule.currentDay)
+    var day = tripModule.addToCurrent(attraction);
+    console.log('current day is', day)
+    console.log('current day number is', day.number)
+    console.log('currentday', tripModule.currentDay);
 
     $.ajax({
-      url: '/days/' + tripModule.currentDay.id,
+      url: '/days/' + day.number,
       method: 'PUT',
-      data: tripModule.currentDay
+      data: {
+        number: day.number,
+        //activities: day.activities,
+        hotelId: day.hotel.id
+      }
     })
   });
 

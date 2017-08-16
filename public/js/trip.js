@@ -100,6 +100,7 @@ var tripModule = (function () {
 
     addToCurrent: function (attraction) {
       currentDay.addAttraction(attraction);
+      return currentDay;
     },
 
     removeFromCurrent: function (attraction) {

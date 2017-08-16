@@ -54,6 +54,7 @@ var dayModule = (function () {
       .text(this.number);
     var self = this;
     this.$button.on('click', function (){
+
       this.blur(); // removes focus box from buttons
       tripModule.switchTo(self);
     });
@@ -103,6 +104,7 @@ var dayModule = (function () {
       case 'hotel':
         if (this.hotel) this.hotel.hide();
         this.hotel = attraction;
+        console.log('day is...', this)
         break;
       case 'restaurant':
         utilsModule.pushUnique(this.restaurants, attraction);

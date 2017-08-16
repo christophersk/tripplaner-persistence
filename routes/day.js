@@ -17,12 +17,17 @@ router.post('/', function (req, res, next) {
     .then(day => {
       res.json(day);
     })
+    .catch(next)
 })
 
 router.put('/:id', function (req, res, next) {
-  Day.findById(req.params.id)
+  Day.findOne({where: {number: req.params.id}})
   .then(day => {
-    return day.update(req.body)
+    return [day, Hotel.findById(req.body.hotelId)]
+    //return day.update(req.body)
+  })
+  .spread((day, hotel) => {
+    return day.setHotels([hotel]);
   })
   .then(day => {
     return res.json(day);
