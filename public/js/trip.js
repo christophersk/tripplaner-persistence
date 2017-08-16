@@ -57,6 +57,13 @@ var tripModule = (function () {
     $.post('/days', {
       number: newDay.number
     })
+    .then(day => {
+      newDay.id = day.id;
+      console.log(newDay.id);
+    })
+    .catch(err => {
+      console.error('error creating day', err);
+    })
     days.push(newDay);
     if (days.length === 1) {
       currentDay = newDay;

@@ -104,7 +104,6 @@ var dayModule = (function () {
       case 'hotel':
         if (this.hotel) this.hotel.hide();
         this.hotel = attraction;
-        console.log('day is...', this)
         break;
       case 'restaurant':
         utilsModule.pushUnique(this.restaurants, attraction);
