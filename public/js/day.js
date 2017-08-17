@@ -124,20 +124,32 @@ var dayModule = (function () {
   // ~~~~~~~~~~~~~~~~~~~~~~~
   Day.prototype.removeAttraction = function (attraction) {
     // removing from the day object
-    switch (attraction.type) {
-      case 'hotel':
-        this.hotel = null;
-        break;
-      case 'restaurant':
-        utilsModule.remove(this.restaurants, attraction);
-        break;
-      case 'activity':
-        utilsModule.remove(this.activities, attraction);
-        break;
-      default: console.error('bad type:', attraction);
-    }
-    // deactivating UI
-    attraction.hide();
+
+    $.ajax({
+      url: '/days/' + this.id,
+      method: 'DELETE',
+      data: {
+        type: attraction.type,
+        attractionId: attraction.id
+      }
+    })
+    .then(() => {
+      switch (attraction.type) {
+        case 'hotel':
+          this.hotel = null;
+          break;
+        case 'restaurant':
+          utilsModule.remove(this.restaurants, attraction);
+          break;
+        case 'activity':
+          utilsModule.remove(this.activities, attraction);
+          break;
+        default: console.error('bad type:', attraction);
+      }
+      // deactivating UI
+      attraction.hide();
+    })
+    .catch(console.error);
   };
 
   // globally accessible module methods

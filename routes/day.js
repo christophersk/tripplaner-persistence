@@ -8,7 +8,6 @@ router.get('/', function (req, res, next) {
   })
     .then(days => {
       res.json(days);
-      console.log("days[0]", days[0])
     })
     .catch(next);
 })
@@ -19,6 +18,18 @@ router.post('/', function (req, res, next) {
       res.json(day);
     })
     .catch(next)
+})
+
+router.delete('/', function (req, res, next) {
+  console.log('id is', req.body.id);
+  Day.findById(+req.body.id)
+  .then(day => {
+    day.destroy();
+  })
+  .then(day => {
+    res.sendStatus(200);
+  })
+  .catch(next);
 })
 
 router.put('/:id', function (req, res, next) {
@@ -35,7 +46,6 @@ router.put('/:id', function (req, res, next) {
     //return day.update(req.body)
   })
   .spread((day, attraction) => {
-
     if (req.body.type === 'hotel') {
       return day.setHotels([attraction]);
     } else if (req.body.type === 'restaurant') {
@@ -43,7 +53,32 @@ router.put('/:id', function (req, res, next) {
     } else if (req.body.type === 'activity') {
       return day.addActivities([attraction]);
     }
+  })
+  .then(day => {
+    return res.json(day);
+  })
+  .catch(next);
+})
 
+router.delete('/:id', function (req, res, next) {
+  Day.findById(req.params.id)
+  .then(day => {
+    if (req.body.type === 'hotel') {
+      return [day, Hotel.findById(req.body.attractionId)]
+    } else if (req.body.type === 'restaurant') {
+      return [day, Restaurant.findById(req.body.attractionId)];
+    } else if (req.body.type === 'activity') {
+      return [day, Activity.findById(req.body.attractionId)]
+    }
+  })
+  .spread((day, attraction) => {
+    if (req.body.type === 'hotel') {
+      return day.removeHotels([attraction]);
+    } else if (req.body.type === 'restaurant') {
+      return day.removeRestaurants([attraction]);
+    } else if (req.body.type === 'activity') {
+      return day.removeActivities([attraction]);
+    }
   })
   .then(day => {
     return res.json(day);

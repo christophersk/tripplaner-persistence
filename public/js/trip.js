@@ -97,16 +97,27 @@ var tripModule = (function () {
   function deleteCurrentDay() {
     // prevent deleting last day
     if (days.length < 2 || !currentDay) return;
-    // remove from the collection
-    var index = days.indexOf(currentDay),
-      previousDay = days.splice(index, 1)[0],
-      newCurrent = days[index] || days[index - 1];
-    // fix the remaining day numbers
-    days.forEach(function (day, i) {
-      day.setNumber(i + 1);
-    });
-    switchTo(newCurrent);
-    previousDay.hideButton();
+
+    $.ajax({
+      url: '/days/',
+      method: 'DELETE',
+      data: {
+        id: currentDay.id
+      }
+    })
+    .then(day => {
+      // remove from the collection
+      var index = days.indexOf(currentDay),
+        previousDay = days.splice(index, 1)[0],
+        newCurrent = days[index] || days[index - 1];
+      // fix the remaining day numbers
+      days.forEach(function (day, i) {
+        day.setNumber(i + 1);
+      });
+      switchTo(newCurrent);
+      previousDay.hideButton();
+    })
+    .catch(console.error);
   }
 
   // globally accessible module methods
