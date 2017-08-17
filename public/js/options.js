@@ -65,14 +65,16 @@ $(function () {
     console.log('current day number is', day.number)
     console.log('currentday', tripModule.currentDay);
 
+    let dataObject = {
+      number: day.number,
+      type: type,
+      attractionId: id
+    }
+
     $.ajax({
-      url: '/days/' + day.number,
+      url: '/days/' + day.id,
       method: 'PUT',
-      data: {
-        number: day.number,
-        //activities: day.activities,
-        hotelId: day.hotel.id
-      }
+      data: dataObject
     })
   });
 

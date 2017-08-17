@@ -20,7 +20,7 @@ var tripModule = (function () {
   // application state
 
   var days = [],
-      currentDay;
+    currentDay;
 
   // jQuery selections
 
@@ -32,49 +32,69 @@ var tripModule = (function () {
 
   // method used both internally and externally
 
-  function switchTo (newCurrentDay) {
+  function switchTo(newCurrentDay) {
     if (currentDay) currentDay.hide();
     currentDay = newCurrentDay;
     currentDay.show();
   }
 
- // ~~~~~~~~~~~~~~~~~~~~~~~
-    // before calling `addDay` or `deleteCurrentDay` that update the frontend (the UI), we need to make sure that it happened successfully on the server
+  // ~~~~~~~~~~~~~~~~~~~~~~~
+  // before calling `addDay` or `deleteCurrentDay` that update the frontend (the UI), we need to make sure that it happened successfully on the server
   // ~~~~~~~~~~~~~~~~~~~~~~~
   $(function () {
-    $addButton.on('click', addDay);
+    $addButton.on('click', function() { return addDay(); });
     $removeButton.on('click', deleteCurrentDay);
   });
 
 
 
   // ~~~~~~~~~~~~~~~~~~~~~~~
-    // `addDay` may need to take information now that we can persist days -- we want to display what is being sent from the DB
+  // `addDay` may need to take information now that we can persist days -- we want to display what is being sent from the DB
   // ~~~~~~~~~~~~~~~~~~~~~~~
-  function addDay () {
+  function addDay(day) {
     if (this && this.blur) this.blur(); // removes focus box from buttons
+
     var newDay = dayModule.create({ number: days.length + 1 }); // dayModule
-    $.post('/days', {
-      number: newDay.number
-    })
-    .then(day => {
+    if (!day) {
+      $.post('/days', {
+        number: newDay.number
+      })
+        .then(day => {
+          newDay.id = day.id;
+          console.log(newDay.id);
+        })
+        .catch(err => {
+          console.error('error creating day', err);
+        })
+    }
+    else {
       newDay.id = day.id;
-      console.log(newDay.id);
-    })
-    .catch(err => {
-      console.error('error creating day', err);
-    })
+      if (day.hotels.length) {
+        newDay.hotel = attractionModule.create(day.hotels[0]);
+      }
+      newDay.restaurants = day.restaurants.map(restaurant => {
+        return attractionModule.create(restaurant);
+      })
+      newDay.activities = day.activities.map(activity => {
+        return attractionModule.create(activity);
+      })
+    }
+
+
     days.push(newDay);
     if (days.length === 1) {
       currentDay = newDay;
     }
+
+
+
     switchTo(newDay);
   }
 
   // ~~~~~~~~~~~~~~~~~~~~~~~
-    // Do not delete a day until it has already been deleted from the DB
+  // Do not delete a day until it has already been deleted from the DB
   // ~~~~~~~~~~~~~~~~~~~~~~~
-  function deleteCurrentDay () {
+  function deleteCurrentDay() {
     // prevent deleting last day
     if (days.length < 2 || !currentDay) return;
     // remove from the collection
@@ -98,9 +118,23 @@ var tripModule = (function () {
     load: function () {
 
       // ~~~~~~~~~~~~~~~~~~~~~~~
-        //If we are trying to load existing Days, then let's make a request to the server for the day. Remember this is async. For each day we get back what do we need to do to it?
+      //If we are trying to load existing Days, then let's make a request to the server for the day. Remember this is async. For each day we get back what do we need to do to it?
       // ~~~~~~~~~~~~~~~~~~~~~~~
-      $(addDay);
+      $.get('/days')
+        .then(days => {
+          console.log('days returned from server is', days)
+          if (!days.length) {
+            $(addDay());
+          }
+          else {
+            days.forEach((day) => {
+
+              $(addDay(day));
+
+            })
+          }
+        })
+
     },
 
     switchTo: switchTo,
